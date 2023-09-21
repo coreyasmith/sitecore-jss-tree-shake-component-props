@@ -34,18 +34,20 @@ const ContentBlock = ({ fields, componentServerData }: ContentBlockProps): JSX.E
   );
 };
 
-import serverData from '../lib/server-data.json';
-
-export const getStaticProps = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const props: any = {};
-  props['componentServerData'] = 'component-level-static-props';
-
-  // Use serverData to force import; delete to keep out of SSG'd HTML.
-  props['imported-server-data'] = serverData;
-  delete props['imported-server-data'];
-
-  return props;
-};
-
 export default withDatasourceCheck()<ContentBlockProps>(ContentBlock);
+
+if (process.env.IS_SERVER === 'true') {
+  const serverData = import('../lib/server-data.json');
+
+  module.exports.getStaticProps = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const props: any = {};
+    props['componentServerData'] = 'component-level-static-props';
+
+    // Use serverData to force import; delete to keep out of SSG'd HTML.
+    props['imported-server-data'] = (await serverData).default;
+    delete props['imported-server-data'];
+
+    return props;
+  };
+}
