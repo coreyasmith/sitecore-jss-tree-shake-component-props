@@ -1,4 +1,10 @@
-import { Text, RichText, Field, withDatasourceCheck } from '@sitecore-jss/sitecore-jss-nextjs';
+import {
+  Text,
+  RichText,
+  Field,
+  withDatasourceCheck,
+  useComponentProps,
+} from '@sitecore-jss/sitecore-jss-nextjs';
 import { ComponentProps } from 'lib/component-props';
 
 type ContentBlockProps = ComponentProps & {
@@ -13,12 +19,17 @@ type ContentBlockProps = ComponentProps & {
  * This is the most basic building block of a content site, and the most basic
  * JSS component that's useful.
  */
-const ContentBlock = ({ fields }: ContentBlockProps): JSX.Element => (
-  <div className="contentBlock">
-    <Text tag="h2" className="contentTitle" field={fields.heading} />
+const ContentBlock = ({ fields }: ContentBlockProps): JSX.Element => {
+  const pageServerData = useComponentProps<string>('server-data');
 
-    <RichText className="contentDescription" field={fields.content} />
-  </div>
-);
+  return (
+    <div className="contentBlock">
+      <h2>{pageServerData}</h2>
+      <Text tag="h2" className="contentTitle" field={fields.heading} />
+
+      <RichText className="contentDescription" field={fields.content} />
+    </div>
+  );
+};
 
 export default withDatasourceCheck()<ContentBlockProps>(ContentBlock);

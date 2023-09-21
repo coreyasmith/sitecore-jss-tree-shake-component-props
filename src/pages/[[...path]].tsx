@@ -87,11 +87,18 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
   };
 };
 
+import serverData from '../lib/server-data.json';
+
 // This function gets called at build time on server-side.
 // It may be called again, on a serverless function, if
 // revalidation (or fallback) is enabled and a new request comes in.
 export const getStaticProps: GetStaticProps = async (context) => {
   const props = await sitecorePagePropsFactory.create(context);
+  props.componentProps['server-data'] = 'page-level-static-props';
+
+  // Use serverData to force import; delete to keep out of SSG'd HTML.
+  props.componentProps['imported-server-data'] = serverData;
+  delete props.componentProps['imported-server-data'];
 
   return {
     props,
