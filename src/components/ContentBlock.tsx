@@ -12,6 +12,7 @@ type ContentBlockProps = ComponentProps & {
     heading: Field<string>;
     content: Field<string>;
   };
+  componentServerData: string;
 };
 
 /**
@@ -19,17 +20,32 @@ type ContentBlockProps = ComponentProps & {
  * This is the most basic building block of a content site, and the most basic
  * JSS component that's useful.
  */
-const ContentBlock = ({ fields }: ContentBlockProps): JSX.Element => {
+const ContentBlock = ({ fields, componentServerData }: ContentBlockProps): JSX.Element => {
   const pageServerData = useComponentProps<string>('server-data');
 
   return (
     <div className="contentBlock">
       <h2>{pageServerData}</h2>
+      <h2>{componentServerData}</h2>
       <Text tag="h2" className="contentTitle" field={fields.heading} />
 
       <RichText className="contentDescription" field={fields.content} />
     </div>
   );
+};
+
+import serverData from '../lib/server-data.json';
+
+export const getStaticProps = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const props: any = {};
+  props['componentServerData'] = 'component-level-static-props';
+
+  // Use serverData to force import; delete to keep out of SSG'd HTML.
+  props['imported-server-data'] = serverData;
+  delete props['imported-server-data'];
+
+  return props;
 };
 
 export default withDatasourceCheck()<ContentBlockProps>(ContentBlock);
